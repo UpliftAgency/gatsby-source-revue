@@ -1,0 +1,50 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "New Version (e.g. major, minor, patch, premajor, preminor, prepatch, prerelease)"
+        required: true
+      npm_tag:
+        description: "NPM Tag (use 'latest' for production build, use 'alpha' for pre-versions)"
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.x"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Cache node_modules
+        uses: actions/cache@master
+        id: cache-node
+        env:
+          cache-name: cache-node
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install dependencies
+        if: steps.cache-node.outputs.cache-hit != 'true'
+        run: yarn install --non-interactive --frozen-lockfile
+
+      - name: Bump version
+        run: |
+          git config --global user.name "Uplift"
+          git config --global user.email "uplift-ltd@users.noreply.github.com"
+          yarn version --non-interactive --new-version ${{ github.event.inputs.version }}
+
+      - name: Publish package
+        run: yarn publish --tag ${{ github.event.inputs.npm_tag }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Push commit and tags
+        run: git push && git push --tags

@@ -1,16 +1,29 @@
 {
-  "name": "gatsby-starter-plugin",
+  "name": "gatsby-source-revue",
   "version": "1.0.0",
-  "description": "A minimal boilerplate for the essential files Gatsby looks for in a plugin",
+  "description": "Source Revue sent issues",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "echo \"No build script setup\""
+    "prepublishOnly": "yarn build",
+    "build": "tsc",
+    "test": "run-s check-types prettier:check",
+    "check-types": "tsc --noEmit",
+    "prettier:check": "prettier --list-different \"src/**/*.{js,jsx,ts,tsx,json,md}\"",
+    "prettier:write": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,md}\""
   },
   "keywords": [
     "gatsby",
     "gatsby-plugin"
   ],
-  "author": "Kyle Gill <kyle.robert.gill@gmail.com>",
-  "license": "0BSD"
+  "author": "Marius Craciunoiu <marius@uplift.ltd>",
+  "license": "MIT",
+  "dependencies": {
+    "npm-run-all": "^4.1.5",
+    "twitter-revue-client": "^1.0.3"
+  },
+  "devDependencies": {
+    "gatsby": "^3.3.1",
+    "prettier": "^2.2.1",
+    "typescript": "^4.2.4"
+  }
 }
